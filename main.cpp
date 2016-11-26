@@ -23,24 +23,26 @@ using namespace std;
 int main(int argc, char** argv) {
     PiServer piServer;
     bool res = piServer.startServer(8080);
-    printf("res %e\n", res);
-    piServer.getIncomingConnection();
-    
-    while (piServer.readMessage()) {
-        //piServer.readMessage();
-        string message = piServer.getMessage();
-        if (!message.empty() && message[message.length()-1] == '\n') {
-            message.erase(message.length()-1);
+    while (true){
+        printf("res %e\n", res);
+        piServer.getIncomingConnection();
+        printf("Creating connection");
+
+        while (piServer.readMessage()) {
+            //piServer.readMessage();
+            string message = piServer.getMessage();
+            if (!message.empty() && message[message.length()-1] == '\n') {
+                message.erase(message.length()-1);
+            }
+            if (!message.empty() && message[message.length()-1] == '\r') {
+                message.erase(message.length()-1);
+            }
+            printf("message:%s:\n", message.c_str());
+            printf("Comparison is %i", message.compare("exit"));
+            if (!message.compare("exit")) break;
+            if (!message.compare("respond")) piServer.sendMessage("Responded\n", 10);
         }
-        if (!message.empty() && message[message.length()-1] == '\r') {
-            message.erase(message.length()-1);
-        }
-        printf("message:%s:\n", message.c_str());
-        printf("Comparison is %i", message.compare("exit"));
-        if (!message.compare("exit")) break;
-        if (!message.compare("respond")) piServer.sendMessage("Responded\n", 10);
     }
-    
     return 0;
 }
 
