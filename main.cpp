@@ -24,11 +24,26 @@ int main(int argc, char** argv) {
     PiServer piServer;
     bool res = piServer.startServer(8080);
     while (true){
+        system("sudo killall gst-launch-1.0");
         printf("res %e\n", res);
         piServer.getIncomingConnection();
         printf("Creating connection");
+        stringstream videoCmd;
+        videoCmd << "/usr/bin/screen -L -dm /bin/bash -c "
+                "'/usr/bin/raspivid -vf -hf -n "
+                "-w 1024 -h 768 -b 1000000 -fps 15 -t 0 -o - | "
+                "/usr/bin/gst-launch-1.0 -v fdsrc ! h264parse ! rtph264pay "
+                "config-interval=10 pt=96 ! udpsink "
+                "host=" << piServer.client_ipstr_ << " port=9000'";
+        const string& tmp = videoCmd.str();
+        const char* videoCmdTmp = tmp.c_str();
+        printf("\nrunning:");
+        printf(videoCmdTmp);
+        printf("\n");
+        system(videoCmdTmp);
 
         while (piServer.readMessage()) {
+            
             //piServer.readMessage();
             string message = piServer.getMessage();
             if (!message.empty() && message[message.length()-1] == '\n') {

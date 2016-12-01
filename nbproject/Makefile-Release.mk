@@ -35,6 +35,7 @@ OBJECTDIR=${CND_BUILDDIR}/${CND_CONF}/${CND_PLATFORM}
 
 # Object Files
 OBJECTFILES= \
+	${OBJECTDIR}/AdafruitMotorHat.o \
 	${OBJECTDIR}/PiServer.o \
 	${OBJECTDIR}/main.o
 
@@ -62,6 +63,11 @@ LDLIBSOPTIONS=
 ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/piserver: ${OBJECTFILES}
 	${MKDIR} -p ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}
 	${LINK.cc} -o ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/piserver ${OBJECTFILES} ${LDLIBSOPTIONS}
+
+${OBJECTDIR}/AdafruitMotorHat.o: AdafruitMotorHat.cpp
+	${MKDIR} -p ${OBJECTDIR}
+	${RM} "$@.d"
+	$(COMPILE.cc) -O2 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/AdafruitMotorHat.o AdafruitMotorHat.cpp
 
 ${OBJECTDIR}/PiServer.o: PiServer.cpp
 	${MKDIR} -p ${OBJECTDIR}

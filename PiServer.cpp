@@ -58,7 +58,7 @@ bool PiServer::startServer(){
     }
      
     if(listen(socket_, 2) == -1){
-        printf("listen() error lol!");
+        printf("listen() error!");
         return false;
     }
 
@@ -73,6 +73,29 @@ bool PiServer::startServer(int portNumber){
 
 bool PiServer::getIncomingConnection(){
     sd_ = accept(socket_,NULL,NULL);
+    
+    //----------------------
+    struct sockaddr     address;
+    socklen_t           addresslen;
+    struct sockaddr_in* addrInternet;
+    string              ip;
+    int port;
+    char caddr[INET_ADDRSTRLEN];
+
+    addresslen = sizeof(address);
+    getpeername(sd_, &address, &addresslen);
+    addrInternet = (struct sockaddr_in*)&address;
+    
+    port = ntohs(addrInternet->sin_port);
+    inet_ntop(AF_INET, &(addrInternet->sin_addr), caddr, INET_ADDRSTRLEN);
+    client_ipstr_ = inet_ntoa(addrInternet->sin_addr);
+    
+    //std::copy(std::begin(ipstr), std::end(ipstr), std::begin(client_ipstr_));
+    printf("Peer IP address ntoa: %s\n", client_ipstr_.c_str());
+    printf("Peer IP address ntop: %s\n", caddr);
+    printf("Peer port      : %d\n", port);
+    //----------------------
+   
     
     if (sd_ == -1) {
         printf("error accept %i\n",errno);

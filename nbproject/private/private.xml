@@ -6,6 +6,12 @@
     </data>
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
-        <group/>
+        <group>
+            <file>file:/home/serhiy/FileServer/Netbeans/PiServer/AdafruitMotorHat.h</file>
+            <file>file:/home/serhiy/FileServer/Netbeans/PiServer/main.cpp</file>
+            <file>file:/home/serhiy/FileServer/Netbeans/PiServer/PiServer.cpp</file>
+            <file>file:/home/serhiy/FileServer/Netbeans/PiServer/PiServer.h</file>
+            <file>file:/home/serhiy/FileServer/Netbeans/PiServer/AdafruitMotorHat.cpp</file>
+        </group>
     </open-files>
 </project-private>
