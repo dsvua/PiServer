@@ -13,14 +13,19 @@
 
 #include "PiServer.h"
 
-PiServer::PiServer() {
+PiServer::PiServer()
+    : PiCar(HAT_ADDRESS)
+{
     port_ = -1;
     portIsOpen_ = false;
+    speed_ = 800;
+    
 }
-
-PiServer::PiServer(const PiServer& orig) {
+/*
+PiServer::PiServer(const PiServer& orig)
+{
 }
-
+*/
 PiServer::~PiServer() {
 }
 
@@ -169,4 +174,53 @@ bool PiServer::readMessage(){
 
 string PiServer::getMessage(){
     return buff_;
+}
+
+void PiServer::parseMessage(string message){
+    vector<string> splitted_message = splitMessage(message, ':');
+    int value = atoi(splitted_message[1].c_str());
+    //value = atoi(strtok(cmessage, ":"));
+    //value = atoi(cmessage);
+    string command = splitted_message[0];
+    cout << message << "|" << splitted_message[0] << " " << value << "|" << splitted_message[1] << endl;
+    if (command == "Reset"){
+        PiCar.resetHat();
+    } else if (command == "Forward"){
+        if (speed_ < (-1) * SPEED_MIN) PiCar.setDirection(DIRECTION_STOP);
+        else if (speed_ < SPEED_MIN) PiCar.setDirection(DIRECTION_FORWARD);
+        speed_ += value;
+        if (speed_ > 4096) speed_ = 4096;
+        cout << "Setting speed Forward" << speed_ << endl;
+        PiCar.setSpeed(speed_);
+    } else if (command == "Backward"){
+        if (speed_ > SPEED_MIN) PiCar.setDirection(DIRECTION_STOP);
+        else if (speed_ > (-1) * SPEED_MIN) PiCar.setDirection(DIRECTION_BACKWARD);
+        speed_ -= value;
+        if (speed_ < -4096) speed_ = -4096;
+        PiCar.setSpeed(speed_);
+    } else if (command == "Right"){
+        PiCar.setSpeedDiff(value);
+        PiCar.setSpeed(speed_);
+    } else if (command == "Left"){
+        PiCar.setSpeedDiff(value * (-1));
+        PiCar.setSpeed(speed_);
+    }
+    //delete cmessage;
+    
+    
+}
+
+void PiServer::split(const string &s, char delim, vector<string> &elems){
+    stringstream ss;
+    ss.str(s);
+    string item;
+    while (getline(ss, item, delim)) {
+        elems.push_back(item);
+    }
+}
+
+vector<string> PiServer::splitMessage(const string &s, char delim){
+    vector<string> elems;
+    split(s, delim, elems);
+    return elems;
 }

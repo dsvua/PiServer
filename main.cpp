@@ -24,6 +24,9 @@ int main(int argc, char** argv) {
     PiServer piServer;
     bool res = piServer.startServer(8080);
     while (true){
+        printf("Resetting hat\n");
+        piServer.PiCar.resetHat();
+        //piServer.PiCar->resetHat();
         system("sudo killall gst-launch-1.0");
         printf("res %e\n", res);
         piServer.getIncomingConnection();
@@ -45,7 +48,12 @@ int main(int argc, char** argv) {
         while (piServer.readMessage()) {
             
             //piServer.readMessage();
+            printf("Getting message\n");
             string message = piServer.getMessage();
+            printf("Parsing message\n");
+            piServer.parseMessage(message);
+            printf("Message:%s\n");
+/*            
             if (!message.empty() && message[message.length()-1] == '\n') {
                 message.erase(message.length()-1);
             }
@@ -56,6 +64,8 @@ int main(int argc, char** argv) {
             printf("Comparison is %i", message.compare("exit"));
             if (!message.compare("exit")) break;
             if (!message.compare("respond")) piServer.sendMessage("Responded\n", 10);
+*/
+            
         }
     }
     return 0;
