@@ -106,7 +106,7 @@ bool PiServer::getIncomingConnection(){
         printf("error accept %i\n",errno);
         return false;
     }
-    printf("Incoming socket %i", sd_);
+    printf("Incoming socket %i\n", sd_);
     return true;
 }
 
@@ -186,17 +186,27 @@ void PiServer::parseMessage(string message){
     if (command == "Reset"){
         PiCar.resetHat();
     } else if (command == "Forward"){
-        if (speed_ < (-1) * SPEED_MIN) PiCar.setDirection(DIRECTION_STOP);
-        else if (speed_ < SPEED_MIN) PiCar.setDirection(DIRECTION_FORWARD);
+        if (speed_ <= ((-1) * SPEED_MIN) && (speed_ + value) > ((-1) * SPEED_MIN))
+            PiCar.setDirection(DIRECTION_STOP);
+        else if (speed_ < SPEED_MIN && (speed_ + value) >= SPEED_MIN)
+            PiCar.setDirection(DIRECTION_FORWARD);
+
         speed_ += value;
+
         if (speed_ > 4096) speed_ = 4096;
+
         cout << "Setting speed Forward" << speed_ << endl;
         PiCar.setSpeed(speed_);
     } else if (command == "Backward"){
-        if (speed_ > SPEED_MIN) PiCar.setDirection(DIRECTION_STOP);
-        else if (speed_ > (-1) * SPEED_MIN) PiCar.setDirection(DIRECTION_BACKWARD);
+        if (speed_ >= SPEED_MIN && (speed_ - value) < SPEED_MIN)
+            PiCar.setDirection(DIRECTION_STOP);
+        else if (speed_ > ((-1) * SPEED_MIN) && (speed_ - value) <= ((-1) * SPEED_MIN))
+            PiCar.setDirection(DIRECTION_BACKWARD);
+
         speed_ -= value;
+
         if (speed_ < -4096) speed_ = -4096;
+
         PiCar.setSpeed(speed_);
     } else if (command == "Right"){
         PiCar.setSpeedDiff(value);

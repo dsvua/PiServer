@@ -115,7 +115,7 @@ void AdafruitMotorHat::setSpeed(int speed) {
                 break;
         }
         setPwm(motors_[i].pwm, 0, 
-                    static_cast<int>(mSpeed));
+                    static_cast<int>(abs(mSpeed)));
         
         printf("Speed %d, mSpeed %d\n", speed, mSpeed);
     }
@@ -154,9 +154,9 @@ void AdafruitMotorHat::setSpeedDiff(int diff_) {
 
 void AdafruitMotorHat::setPwm(int pin, int pwm_on, int pwm_off){
     printf("setPwm pin %d, on %d, off %d\n", pin, pwm_on, pwm_off);
-    if (pwm_on > 4096) pwm_on = 4096;
+    if (pwm_on > 4095) pwm_on = 4095;
     if (pwm_on < 0) pwm_on = 0;
-    if (pwm_off > 4096) pwm_off = 4096;
+    if (pwm_off > 4095) pwm_off = 4095;
     if (pwm_off < 0) pwm_off = 0;
     
     int reg = baseReg(pin);
@@ -167,14 +167,17 @@ void AdafruitMotorHat::setPwm(int pin, int pwm_on, int pwm_off){
 }
 
 void AdafruitMotorHat::setFullOn(int pin){
-    setPwm(pin, 4096, 0);
-    //int reg = baseReg(pin);
-    //writeReg8(reg + 1, 0x10);
-    //writeReg8(reg + 3, 0);
+    //setPwm(pin, 4096, 0);
+    int reg = baseReg(pin);
+    writeReg8(reg + 1, 0x10);
+    writeReg8(reg + 3, 0);
 }
 
 void AdafruitMotorHat::setFullOff(int pin){
-    setPwm(pin, 0, 4096);
+    //setPwm(pin, 0, 4096);
+    int reg = baseReg(pin);
+    writeReg8(reg + 1, 0);
+    writeReg8(reg + 3, 0x10);
 }
 void AdafruitMotorHat::setFd(int fd){
     shield_fd_ = fd;

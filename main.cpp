@@ -20,6 +20,28 @@ using namespace std;
 /*
  * 
  */
+
+int startVideo(string ip_address){
+    stringstream videoCmd;
+    videoCmd << "host=" << ip_address;
+    const string& tmp = videoCmd.str();
+    const char* cTmp = tmp.c_str();
+    char *program = "/usr/bin/gst-launch-1.0";
+    pid_t child_pid;
+    child_pid = fork ();
+    if (child_pid != 0)
+        // This is the parent process.
+        return child_pid;
+    else {
+        // Now execute PROGRAM, searching for it in the path.
+        execlp("gst-launch-1.0", "gst-launch-1.0", "rpicamsrc", "bitrate=1000000", 
+                "rotation=180" , "!", "video/x-h264,width=640,height=480",
+                "!", "h264parse", "!", "queue", "!", 
+                "rtph264pay", "config-interval=1", "pt=96", "!",
+                "udpsink", "host=192.168.192.13", "port=9000", (char *)NULL);
+    }
+}
+
 int main(int argc, char** argv) {
     PiServer piServer;
     bool res = piServer.startServer(8080);
@@ -29,22 +51,14 @@ int main(int argc, char** argv) {
         //piServer.PiCar->resetHat();
         system("sudo killall gst-launch-1.0");
         printf("res %e\n", res);
+        printf("Creating connection\n");
         piServer.getIncomingConnection();
-        printf("Creating connection");
-        stringstream videoCmd;
-        videoCmd << "/usr/bin/screen -L -dm /bin/bash -c "
-                "'/usr/bin/raspivid -vf -hf -n "
-                "-w 1024 -h 768 -b 1000000 -fps 15 -t 0 -o - | "
-                "/usr/bin/gst-launch-1.0 -v fdsrc ! h264parse ! rtph264pay "
-                "config-interval=10 pt=96 ! udpsink "
-                "host=" << piServer.client_ipstr_ << " port=9000'";
-        const string& tmp = videoCmd.str();
-        const char* videoCmdTmp = tmp.c_str();
-        printf("\nrunning:");
-        printf(videoCmdTmp);
-        printf("\n");
-        system(videoCmdTmp);
-
+        printf("Starting video\n");
+        printf("/usr/bin/gst-launch-1.0 rpicamsrc bitrate=1000000" 
+                " rotation=180 ! video/x-h264,width=640,height=480 "
+                "! h264parse ! queue ! rtph264pay config-interval=1"
+                " pt=96 ! udpsink host=192.168.192.13 port=9000\n");
+        startVideo(piServer.client_ipstr_);
         while (piServer.readMessage()) {
             
             //piServer.readMessage();
